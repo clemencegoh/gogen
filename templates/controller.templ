@@ -1,0 +1,133 @@
+package controllers
+
+import (
+	"{{ .Workspace }}/constants"
+	"{{ .Workspace }}/models"
+	"{{ .Workspace }}/services"
+	"encoding/json"
+	"net/http"
+
+	"strconv"
+
+	"github.com/gorilla/mux"
+)
+
+// Add{{ .Component }}Controllers handles routing for {{ .Component }} endpoints
+func Add{{ .Component }}Controllers(r *mux.Router) {
+	controller := New{{ .Component }}Controller()
+	baseRoute := constants.APIBasePath + "/gyms"
+
+	r.HandleFunc(baseRoute, controller.getAll{{ .Component }}).Methods("GET")
+	r.HandleFunc(baseRoute+"/{id}", controller.get{{ .Component }}ByID).Methods("GET")
+	r.HandleFunc(baseRoute, controller.create{{ .Component }}).Methods("POST")
+	r.HandleFunc(baseRoute+"/{id}", controller.delete{{ .Component }}ByID).Methods("DELETE")
+	r.HandleFunc(baseRoute+"/{id}", controller.update{{ .Component }}ByID).Methods("PUT")
+}
+
+// I{{ .Component }}Controller interface for {{ .Component }}Controller
+type I{{ .Component }}Controller interface {
+	getAll{{ .Component }}(w http.ResponseWriter, r *http.Request)
+	create{{ .Component }}(w http.ResponseWriter, r *http.Request)
+	get{{ .Component }}ByID(w http.ResponseWriter, r *http.Request)
+	delete{{ .Component }}ByID(w http.ResponseWriter, r *http.Request)
+	update{{ .Component }}ByID(w http.ResponseWriter, r *http.Request)
+}
+
+// {{ .Component }}Controller implements interface
+type {{ .Component }}Controller struct {
+	service services.I{{ .Component }}Service
+}
+
+// New{{ .Component }}Controller inits {{ .Component }}Controller
+func New{{ .Component }}Controller() I{{ .Component }}Controller {
+	service := services.New{{ .Component }}Service()
+	return {{ .Component }}Controller{service}
+}
+
+// @GET("/")
+func (controller {{ .Component }}Controller) getAll{{ .Component }}(w http.ResponseWriter, r *http.Request) {
+	response, err := controller.service.GetAll{{ .Component }}()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.Write(response)
+}
+
+// @GET("/:id")
+func (controller {{ .Component }}Controller) get{{ .Component }}ByName(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err0 := strconv.ParseUint(params["id"], 10, 32)
+    if err0 != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	response, err := controller.service.Get{{ .Component }}ByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(response)
+}
+
+// @POST("/")
+func (controller {{ .Component }}Controller) create{{ .Component }}(w http.ResponseWriter, r *http.Request) {
+	decoder := json.NewDecoder(r.Body)
+	var m models.{{ .Component }}Model
+	err := decoder.Decode(&m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	resp, err := controller.service.Create{{ .Component }}(m)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(resp)
+}
+
+// @DELETE("/:id")
+func (controller {{ .Component }}Controller) delete{{ .Component }}ByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	response, err := controller.service.Delete{{ .Component }}ByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(response)
+}
+
+// @PUT("/:id")
+func (controller {{ .Component }}Controller) update{{ .Component }}ByID(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+
+	id, err := strconv.ParseUint(params["id"], 10, 32)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	var m models.{{ .Component }}Model
+	err2 := decoder.Decode(&m)
+	if err2 != nil {
+		http.Error(w, err2.Error(), http.StatusBadRequest)
+		return
+	}
+
+	response, err3 := controller.service.Update{{ .Component }}ByID(id, g)
+	if err3 != nil {
+		http.Error(w, err3.Error(), http.StatusBadRequest)
+		return
+	}
+	w.Write(response)
+}
