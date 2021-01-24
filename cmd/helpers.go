@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 // CheckArgs should be used to ensure the right command line arguments are
@@ -12,6 +14,14 @@ func CheckArgs(arg ...string) {
 	if len(os.Args) < len(arg)+1 {
 		Warning("Usage: %s %s", os.Args[0], strings.Join(arg, " "))
 		os.Exit(1)
+	}
+}
+
+// CheckFlag ensures that flag is not empty
+func CheckFlag(cmd *cobra.Command, flagVar string) {
+	if flagVar == "" {
+		cmd.Help()
+		os.Exit(0)
 	}
 }
 

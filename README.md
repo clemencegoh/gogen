@@ -1,0 +1,1 @@
+# Generation tool for go MVC
