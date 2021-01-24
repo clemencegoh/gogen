@@ -1,0 +1,65 @@
+package services
+
+import (
+	"{{ .Workspace }}/exceptions"
+	"{{ .Workspace }}/models"
+	"{{ .Workspace }}/repositories"
+	"encoding/json"
+	"fmt"
+)
+
+// I{{ .Component }}Service interface for {{ .Component }}Service
+type I{{ .Component }}Service interface {
+	Get{{ .Component }}ByID(id uint64) ([]byte, error)
+	GetAll{{ .Component }}s() ([]byte, error)
+	Create{{ .Component }}({{ .Component }} models.{{ .Component }}Model) ([]byte, error)
+	Delete{{ .Component }}ByID(id uint64) ([]byte, error)
+	Update{{ .Component }}ByID(id uint64, {{ .Component }} models.{{ .Component }}Model) ([]byte, error)
+}
+
+// {{ .Component }}Service implementaion of interface
+type {{ .Component }}Service struct {
+	repository repositories.I{{ .Component }}Repository
+}
+
+// New{{ .Component }}Service init
+func New{{ .Component }}Service() {{ .Component }}Service {
+	repo := repositories.New{{ .Component }}Repo()
+	return {{ .Component }}Service{repo}
+}
+
+// Get{{ .Component }}ByID gets {{ .Component }}s by id
+func (service {{ .Component }}Service) Get{{ .Component }}ByID(id uint64) ([]byte, error) {
+	{{ .Component }} := service.repository.Get{{ .Component }}ByID(id)
+	return json.Marshal({{ .Component }})
+}
+
+// GetAll{{ .Component }}s gets all {{ .Component }}s
+func (service {{ .Component }}Service) GetAll{{ .Component }}s() ([]byte, error) {
+	{{ .Component }}s := service.repository.GetAll{{ .Component }}s()
+	return json.Marshal({{ .Component }}s)
+}
+
+// Create{{ .Component }} creates a {{ .Component }}
+func (service {{ .Component }}Service) Create{{ .Component }}({{ .Component }} models.{{ .Component }}Model) ([]byte, error) {
+	// existing := service.repository.Get{{ .Component }}ByName({{ .Component }}.Name)
+	// if existing.ID == 0 {
+	// 	new{{ .Component }} := service.repository.Create{{ .Component }}({{ .Component }})
+	// 	return json.Marshal(new{{ .Component }})
+	// }
+	// return []byte(""), exceptions.{{ .Component }}ExistsException({{ .Component }}.Name)
+    return []byte(""), nil
+}
+
+// Delete{{ .Component }}ByID deletes if present, does nothing if not
+func (service {{ .Component }}Service) Delete{{ .Component }}ByID(id uint64) ([]byte, error) {
+	service.repository.Delete{{ .Component }}ByID(id)
+	return []byte(fmt.Sprintf("%v", id)), nil
+}
+
+// Update{{ .Component }}ByID updates with new object
+func (service {{ .Component }}Service) Update{{ .Component }}ByID(id uint64, {{ .Component }} models.{{ .Component }}Model) ([]byte, error) {
+	{{ .Component }}.ID = id
+	service.repository.Update{{ .Component }}ByID({{ .Component }})
+	return []byte(""), nil
+}

@@ -1,0 +1,11 @@
+package models
+
+import (
+	"gorm.io/gorm"
+)
+
+// {{ .Component }}Model model
+type {{ .Component }}Model struct {
+	gorm.Model
+	ID            uint64 `gorm:"primary_key;auto_increment" json:"id"`
+}

@@ -27,6 +27,7 @@ import (
 var (
 	componentName string
 	baseDir       string
+	workspace     string
 )
 
 // Comp is a component
@@ -40,18 +41,21 @@ var generateCmd = &cobra.Command{
 	Use:   "new",
 	Short: "Generates new from template",
 	Long: `Generation tool for MVC.
-Default settings takes current working directory as basedir for determining where the templates are.
-If customizing project workspace to make use of this without specifying template dir:
+
+Specify template dir if possible.
+By default, assumes current working dir has a structure of:
 
 <dir>
 |-> templates
 	|-> controller.templ
 	|-> repo.templ
 	|-> service.templ
+	|-> model.templ
 
-Format must be as above.
+Generated files will always be in current working dir.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		// Pre-parses arguments before generating
 		CheckFlag(cmd, componentName)
 		Info("Generate component %s", componentName)
 		wd, err := os.Getwd()
@@ -60,39 +64,46 @@ Format must be as above.
 		}
 		if baseDir != "" {
 			wd = baseDir
+		} else {
+			wd = filepath.Join(wd, "templates")
 		}
-		generateComponent(componentName, wd)
+		if workspace == "" {
+			splitted := strings.Split(wd, "/")
+			workspace = splitted[len(splitted)-1]
+		}
+		generateComponent(componentName, wd, workspace)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(generateCmd)
 	generateCmd.Flags().StringVarP(&componentName, "component", "c", "", "Generates MVC component with Controller-Service-Repository")
-	generateCmd.Flags().StringVarP(&baseDir, "baseDir", "b", "", "Base dir acting as parent folder for template dir")
+	generateCmd.Flags().StringVarP(&baseDir, "templates", "t", "", "Template dir holding all templates")
+	generateCmd.Flags().StringVarP(&workspace, "workspace", "w", "", "Workspace for import template purposes, defaults to same as baseDir")
 }
 
-func generateComponent(name, wd string) {
-
+func generateComponent(name, templateDir, workspace string) {
 	templateFiles := map[string]string{
 		"repository.templ": "repositories",
 		"service.templ":    "services",
 		"controller.templ": "controllers",
+		"model.templ":      "models",
 	}
 
 	newComp := Comp{
 		Component: name,
-		Workspace: "_", // todo
+		Workspace: workspace,
 	}
 
 	for templateName, folderName := range templateFiles {
-		path := filepath.Join(wd, "templates", templateName)
+		path := filepath.Join(templateDir, templateName)
 		templ := template.Must(template.ParseFiles(path))
 
-		var filename string
-		filename = strings.Title(name) + strings.Title(strings.Split(templateName, ".")[0]) + ".go"
+		filename := strings.Title(name) + strings.Title(strings.Split(templateName, ".")[0]) + ".go"
+		cwd, _ := os.Getwd()
 
-		_ = os.Mkdir(filepath.Join(wd, folderName), 0700)
-		f, err := os.Create(filepath.Join(wd, folderName, filename))
+		_ = os.Mkdir(filepath.Join(cwd, folderName), 0700)
+		f, err := os.Create(filepath.Join(cwd, folderName, filename))
 		if err != nil {
 			Error("%s", err)
 		}

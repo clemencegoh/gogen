@@ -46,7 +46,7 @@ func New{{ .Component }}Controller() I{{ .Component }}Controller {
 
 // @GET("/")
 func (controller {{ .Component }}Controller) getAll{{ .Component }}(w http.ResponseWriter, r *http.Request) {
-	response, err := controller.service.GetAll{{ .Component }}()
+	response, err := controller.service.GetAll{{ .Component }}s()
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -56,11 +56,11 @@ func (controller {{ .Component }}Controller) getAll{{ .Component }}(w http.Respo
 }
 
 // @GET("/:id")
-func (controller {{ .Component }}Controller) get{{ .Component }}ByName(w http.ResponseWriter, r *http.Request) {
+func (controller {{ .Component }}Controller) get{{ .Component }}ByID(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, err0 := strconv.ParseUint(params["id"], 10, 32)
     if err0 != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err0.Error(), http.StatusBadRequest)
 		return
 	}
 	response, err := controller.service.Get{{ .Component }}ByID(id)
@@ -124,7 +124,7 @@ func (controller {{ .Component }}Controller) update{{ .Component }}ByID(w http.R
 		return
 	}
 
-	response, err3 := controller.service.Update{{ .Component }}ByID(id, g)
+	response, err3 := controller.service.Update{{ .Component }}ByID(id, m)
 	if err3 != nil {
 		http.Error(w, err3.Error(), http.StatusBadRequest)
 		return

@@ -1,1 +1,61 @@
-hello world from repo {{ .Component }}
+package repositories
+
+import (
+	"{{ .Workspace }}/models"
+
+	"gorm.io/gorm"
+)
+
+// I{{ .Component }}Repository exposed interface
+type I{{ .Component }}Repository interface {
+	Get{{ .Component }}ByID(id uint64) models.{{ .Component }}Model
+	GetAll{{ .Component }}s() []*models.{{ .Component }}Model
+	Create{{ .Component }}({{ .Component }} models.{{ .Component }}Model) models.{{ .Component }}Model
+	Delete{{ .Component }}ByID(id uint64)
+	Update{{ .Component }}ByID({{ .Component }} models.{{ .Component }}Model) models.{{ .Component }}Model
+}
+
+// {{ .Component }}Repository struct
+type {{ .Component }}Repository struct {
+	db *gorm.DB
+}
+
+// New{{ .Component }}Repo inits new {{ .Component }}Repo
+func New{{ .Component }}Repo() I{{ .Component }}Repository {
+	db := Connect()
+	return {{ .Component }}Repository{db}
+}
+
+// Get{{ .Component }}ByID gets {{ .Component }} by ID
+func (repo {{ .Component }}Repository) Get{{ .Component }}ByID(id uint64) models.{{ .Component }}Model {
+	var {{ .Component }}s models.{{ .Component }}Model
+	repo.db.First(&{{ .Component }}s, "id = ?", id)
+
+	return {{ .Component }}s
+}
+
+// GetAll{{ .Component }}s gets all
+func (repo {{ .Component }}Repository) GetAll{{ .Component }}s() []*models.{{ .Component }}Model {
+	var {{ .Component }}s []*models.{{ .Component }}Model
+
+	repo.db.Find(&{{ .Component }}s)
+
+	return {{ .Component }}s
+}
+
+// Create{{ .Component }} creates new {{ .Component }} if not already
+func (repo {{ .Component }}Repository) Create{{ .Component }}({{ .Component }} models.{{ .Component }}Model) models.{{ .Component }}Model {
+	repo.db.Create(&{{ .Component }})
+	return {{ .Component }}
+}
+
+// Delete{{ .Component }}ByID deletes a {{ .Component }} by its id
+func (repo {{ .Component }}Repository) Delete{{ .Component }}ByID(id uint64) {
+	repo.db.Delete(&models.{{ .Component }}Model{}, id)
+}
+
+// Update{{ .Component }}ByID updates a {{ .Component }} by its id
+func (repo {{ .Component }}Repository) Update{{ .Component }}ByID({{ .Component }} models.{{ .Component }}Model) models.{{ .Component }}Model {
+	repo.db.Save(&{{ .Component }})
+	return {{ .Component }}
+}
